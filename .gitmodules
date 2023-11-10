@@ -1,0 +1,3 @@
+[submodule "javacv"]
+	path = javacv
+	url = https://github.com/bytedeco/javacv.git
