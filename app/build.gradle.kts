@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.worldsticher360"
-        minSdk = 19
+        minSdk = 24
         targetSdk = 31
         versionCode = 1
         versionName = "1.0"
