@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.worldsticher360"
-        minSdk = 24
+        minSdk = 21
         targetSdk = 31
         versionCode = 1
         versionName = "1.0"
@@ -46,7 +46,6 @@ dependencies {
     implementation("androidx.camera:camera-camera2:${camerax_version}")
     implementation("androidx.camera:camera-lifecycle:${camerax_version}")
     implementation("androidx.camera:camera-video:${camerax_version}")
-
     implementation("androidx.camera:camera-view:${camerax_version}")
     implementation("androidx.camera:camera-extensions:${camerax_version}")
 
