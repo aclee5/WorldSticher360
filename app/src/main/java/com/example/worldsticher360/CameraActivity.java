@@ -3,7 +3,9 @@ package com.example.worldsticher360;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -140,7 +142,14 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 new ImageCapture.OnImageSavedCallback() {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                        Toast.makeText(CameraActivity.this, "Saving...", Toast.LENGTH_SHORT).show();
+                        Uri savedImageUri = outputFileResults.getSavedUri();
+                        String savedImagePath = getRealPathFromURI(savedImageUri);
+
+                        Toast.makeText(CameraActivity.this, savedImagePath, Toast.LENGTH_SHORT).show();
+                        // Start ImagePreviewActivity and pass the image path
+                        Intent previewIntent = new Intent(CameraActivity.this, ImagePreviewActivity.class);
+                        previewIntent.putExtra("imagePath", savedImagePath);
+                        startActivity(previewIntent);
                     }
 
                     @Override
@@ -148,6 +157,20 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                         Toast.makeText(CameraActivity.this, "Error: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private String getRealPathFromURI(Uri uri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+        if (cursor == null) {
+            return uri.getPath(); // fallback to the original path if cursor is null
+        } else {
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            String path = cursor.getString(column_index);
+            cursor.close();
+            return path;
+        }
     }
 
     private boolean allPermissionsGranted() {
