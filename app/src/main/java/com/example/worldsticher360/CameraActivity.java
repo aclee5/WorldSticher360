@@ -39,7 +39,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
     private Button buttonCaptureSave, buttonCaptureShow;
     private ImageCapture imageCapture;
-    private ImageView imageViewCaptured;
     private static final int img_id = 1;
     public static int buttonCaptureSaveInt;
     // new
@@ -53,12 +52,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_camera);
 
         buttonCaptureSave = findViewById(R.id.buttonCaptureSave);
-        buttonCaptureShow = findViewById(R.id.buttonCaptureShow);
         previewView = findViewById(R.id.previewView);
-        imageViewCaptured = findViewById(R.id.imageViewCapturedImg);
 
         buttonCaptureSave.setOnClickListener(this);
-        buttonCaptureShow.setOnClickListener(this);
 
         if (allPermissionsGranted()) {
             startCamera(); //start camera if permission has been granted by user
@@ -110,20 +106,11 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
         @Override
     public void onClick(View view) {
-        if(view.getId() == buttonCaptureShow.getId())
-        {
-            Intent camera_intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(camera_intent, img_id);
-        } else if(view.getId() == buttonCaptureSave.getId()) {
-            capturePhoto();
-        }
+            if(view.getId() == buttonCaptureSave.getId()) {
+                capturePhoto();
+            }
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Bitmap photo = (Bitmap) data.getExtras().get("data");
-        imageViewCaptured.setImageBitmap(photo);
-    }
 
     private void capturePhoto() {
         long timeStamp = System.currentTimeMillis();
