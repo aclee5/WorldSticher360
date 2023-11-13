@@ -1,10 +1,15 @@
 package com.example.worldsticher360;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -31,11 +36,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class CameraActivity extends AppCompatActivity implements View.OnClickListener {
+public class CameraActivity extends AppCompatActivity implements View.OnClickListener, SensorEventListener {
 
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     PreviewView previewView;
     private CameraProvider cameraProvider;
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
+
+    // Thresholds for accelerometer values
+    private static final float ACCELEROMETER_THRESHOLD = 9.0f;
 
     private Button buttonCaptureSave, buttonCaptureShow;
     private ImageCapture imageCapture;
@@ -46,6 +56,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private int REQUEST_CODE_PERMISSIONS = 1001;
     private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA"};
 
+    private boolean isCapturing = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +72,13 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         } else {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
         }
+
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        if (sensorManager != null) {
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        }
+
+
     }
 
     private Executor getExecutor() {
@@ -85,6 +103,28 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         }, ContextCompat.getMainExecutor(this));
     }
 
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
+
+        float acceleration = (float) Math.sqrt(x * x + y * y + z * z);
+
+        if (acceleration > ACCELEROMETER_THRESHOLD && !isCapturing) {
+            // Trigger photo capture
+            capturePhoto();
+            isCapturing = true;
+        } else if (acceleration <= ACCELEROMETER_THRESHOLD) {
+            isCapturing = false;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
 
         cameraProvider.unbindAll();
@@ -102,6 +142,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 .build();
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
         cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
+        if (accelerometer != null) {
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        }
     }
 
         @Override
