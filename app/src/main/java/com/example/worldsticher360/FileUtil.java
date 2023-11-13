@@ -14,6 +14,7 @@ import java.util.Locale;
 
 import static android.os.Environment.DIRECTORY_PICTURES;
 
+//class taken from https://github.com/YarikSOffice/OpenCV-Playground
 public class FileUtil {
 
     private final Context context;

@@ -51,6 +51,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private ImageCapture imageCapture;
     private static final int img_id = 1;
     public static int buttonCaptureSaveInt;
+
     // new
     private Executor executor = Executors.newSingleThreadExecutor();
     private int REQUEST_CODE_PERMISSIONS = 1001;
