@@ -134,8 +134,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
                         Toast.makeText(CameraActivity.this, savedImagePath, Toast.LENGTH_SHORT).show();
                         // Start ImagePreviewActivity and pass the image path
+                        savedImageUri = outputFileResults.getSavedUri();
                         Intent previewIntent = new Intent(CameraActivity.this, ImagePreviewActivity.class);
-                        previewIntent.putExtra("imagePath", savedImagePath);
+                        previewIntent.putExtra("imageUri", savedImageUri);
                         startActivity(previewIntent);
                     }
 
@@ -149,16 +150,22 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private String getRealPathFromURI(Uri uri) {
         String[] projection = {MediaStore.Images.Media.DATA};
         Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
-        if (cursor == null) {
-            return uri.getPath(); // fallback to the original path if cursor is null
+
+        if (cursor == null || cursor.getCount() == 0) {
+            // fallback to the original path if cursor is null or empty
+            if (cursor != null) {
+                cursor.close();
+            }
+            return uri.getPath();
         } else {
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
             cursor.moveToFirst();
-            String path = cursor.getString(column_index);
+            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            String path = cursor.getString(columnIndex);
             cursor.close();
             return path;
         }
     }
+
 
     private boolean allPermissionsGranted() {
 
