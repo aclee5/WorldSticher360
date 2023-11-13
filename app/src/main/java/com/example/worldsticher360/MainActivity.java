@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        click_image_id = findViewById(R.id.click_image_id);
         Button btnOpenCamera = findViewById(R.id.btnOpenCamera);
 
         btnOpenCamera.setOnClickListener(v -> {
