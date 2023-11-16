@@ -16,7 +16,6 @@ import static android.os.Environment.DIRECTORY_PICTURES;
 
 //class taken from https://github.com/YarikSOffice/OpenCV-Playground
 public class FileUtil {
-
     private final Context context;
 
     public FileUtil(Context context) {
@@ -71,7 +70,7 @@ public class FileUtil {
         return new File(pictures, TEMPORARY_DIRECTORY_NAME);
     }
 
-    // there is no built-in function for deleting folders ❤️
+    // there is no built-in function for deleting folders
     private void remove(File file) {
         if (file.isDirectory()) {
             File[] entries = file.listFiles();

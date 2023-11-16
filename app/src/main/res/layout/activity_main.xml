@@ -10,7 +10,8 @@ tools:context=".MainActivity">
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:text="Settings"/>
+        android:text="Settings"
+        android:id="@+id/settingsBtn"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
