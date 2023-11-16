@@ -192,6 +192,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                         Uri savedImageUri = Uri.fromFile(file);
                         Intent previewIntent = new Intent(CameraActivity.this, ImagePreviewActivity.class);
                         previewIntent.putExtra("imageUri", savedImageUri);
+                        previewIntent.putExtra("timestamp", timeStamp);
                         startActivity(previewIntent);
                     }
 
