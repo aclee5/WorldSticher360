@@ -12,6 +12,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +33,7 @@ import androidx.core.content.ContextCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.File;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -158,27 +160,36 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
     private void capturePhoto() {
         long timeStamp = System.currentTimeMillis();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, timeStamp);
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+        String fileName = "worldstitcher_" + timeStamp + ".jpg";
 
+        // Specify the folder path where you want to save the photo
+        String folderPath = Environment.getExternalStorageDirectory() + "/worldstitcher/photos";
 
+        File direct = new File(folderPath);
+
+        if (!direct.exists()) {
+            direct.mkdirs();
+        }
+
+        File file = new File(direct, fileName);
+
+        // Capture the photo
         imageCapture.takePicture(
                 new ImageCapture.OutputFileOptions.Builder(
-                        getContentResolver(),
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        contentValues
+                        new File(file.getAbsolutePath())
                 ).build(),
                 getExecutor(),
                 new ImageCapture.OnImageSavedCallback() {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                        Uri savedImageUri = outputFileResults.getSavedUri();
-                        String savedImagePath = getRealPathFromURI(savedImageUri);
+                        // Your existing code to handle the saved image
 
+                        // Example: Display the saved file path
+                        String savedImagePath = file.getAbsolutePath();
                         Toast.makeText(CameraActivity.this, savedImagePath, Toast.LENGTH_SHORT).show();
+
                         // Start ImagePreviewActivity and pass the image path
-                        savedImageUri = outputFileResults.getSavedUri();
+                        Uri savedImageUri = Uri.fromFile(file);
                         Intent previewIntent = new Intent(CameraActivity.this, ImagePreviewActivity.class);
                         previewIntent.putExtra("imageUri", savedImageUri);
                         startActivity(previewIntent);
@@ -186,10 +197,12 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
                     @Override
                     public void onError(@NonNull ImageCaptureException exception) {
+                        // Your existing code to handle the error
                         Toast.makeText(CameraActivity.this, "Error: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
 
     private String getRealPathFromURI(Uri uri) {
         String[] projection = {MediaStore.Images.Media.DATA};
