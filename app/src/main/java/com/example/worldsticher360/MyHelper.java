@@ -13,6 +13,7 @@ public class MyHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE =
             "CREATE TABLE " + Constants.TABLE_NAME + " (" +
                     Constants.UID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    Constants.NAME + " TEXT, "+
                     Constants.PHOTO_PATH + " TEXT, " +
                     Constants.TIMESTAMP + " TEXT);";
 

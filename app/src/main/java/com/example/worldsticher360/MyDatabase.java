@@ -15,9 +15,10 @@ public class MyDatabase {
         helper = new MyHelper(context);
     }
 
-    public long insertPhotoData(String photoPath, String timestamp) {
+    public long insertPhotoData(String photoPath, String timestamp, String name) {
         db = helper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
+        contentValues.put(Constants.NAME, name);
         contentValues.put(Constants.PHOTO_PATH, photoPath);
         contentValues.put(Constants.TIMESTAMP, timestamp);
         long id = db.insert(Constants.TABLE_NAME, null, contentValues);
@@ -26,7 +27,7 @@ public class MyDatabase {
 
     public Cursor getPhotoData() {
         SQLiteDatabase db = helper.getWritableDatabase();
-        String[] columns = {Constants.PHOTO_PATH, Constants.TIMESTAMP};
+        String[] columns = {Constants.NAME, Constants.PHOTO_PATH, Constants.TIMESTAMP};
         return db.query(Constants.TABLE_NAME, columns, null, null, null, null, null);
     }
 }
