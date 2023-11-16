@@ -13,14 +13,40 @@
         class="androidx.camera.view.PreviewView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="5dp"
         android:layout_weight="1" />
-
     <Button
         android:id="@+id/buttonCaptureSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="center"
         android:text="Capture and Save" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="#"
+            android:textStyle="bold"
+            android:textSize="35dp"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:id="@+id/cameraImageCountTextView"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageStitchButton"
+            android:text="Stitch"
+            android:layout_gravity="end"
+            />
+
+
+    </LinearLayout>
+
+
+
 
 </LinearLayout>
