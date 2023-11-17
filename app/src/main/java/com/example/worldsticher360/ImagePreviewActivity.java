@@ -97,7 +97,8 @@ public class ImagePreviewActivity extends AppCompatActivity {
 
         // Save to database (replace this with your database handling logic)
         MyDatabase myDatabase = new MyDatabase(this);
-        long id = myDatabase.insertPhotoData(name, imageUri.toString(), Long.toString(timestamp));
+        //String photoPath, String timestamp, String name
+        long id = myDatabase.insertPhotoData(imageUri.toString(), Long.toString(timestamp), name);
         if (id != -1) {
             Toast.makeText(this, "Data saved to database", Toast.LENGTH_SHORT).show();
         } else {

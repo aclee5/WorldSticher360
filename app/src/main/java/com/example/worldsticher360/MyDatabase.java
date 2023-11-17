@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class MyDatabase {
     private SQLiteDatabase db;
@@ -29,6 +30,7 @@ public class MyDatabase {
         SQLiteDatabase db = helper.getWritableDatabase();
         String[] columns = {Constants.NAME, Constants.PHOTO_PATH, Constants.TIMESTAMP};
         return db.query(Constants.TABLE_NAME, columns, null, null, null, null, null);
+
     }
 }
 
