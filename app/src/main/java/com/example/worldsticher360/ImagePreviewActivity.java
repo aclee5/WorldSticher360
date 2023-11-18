@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -24,9 +25,9 @@ public class ImagePreviewActivity extends AppCompatActivity {
 
     private ImageView imageViewPreview;
     private EditText nameEditText;
-    private Button saveBtn;
-    private Button deleteBtn;
-    private Button shareBtn;
+    private ImageButton saveBtn;
+    private ImageButton deleteBtn;
+    private ImageButton shareBtn;
 
     private Button homeBtn;
     private Uri imageUri;

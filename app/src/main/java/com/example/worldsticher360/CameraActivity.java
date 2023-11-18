@@ -16,6 +16,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -49,7 +50,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     // Thresholds for accelerometer values
     private static final float ACCELEROMETER_THRESHOLD = 9.0f;
 
-    private Button buttonCaptureSave, buttonCaptureShow;
+    private ImageButton buttonCaptureSave, buttonCaptureShow;
     private ImageCapture imageCapture;
     private static final int img_id = 1;
     public static int buttonCaptureSaveInt;

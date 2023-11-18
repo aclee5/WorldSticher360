@@ -9,16 +9,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-        <Button
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/home_button"
-            android:id="@+id/imgPrevHomeButton"/>
+            android:src="@drawable/baseline_home_24"
+            android:id="@+id/imgPrevHomeButton"
+            android:layout_weight="0.5"
+            />
         <EditText
             android:padding="20dp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:ems="10"
             android:hint="Untitled"
             android:id="@+id/imagePrevNameEditText"
@@ -35,27 +37,34 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
+        android:orientation="horizontal"
+        android:padding="5dp">
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save"
+            android:src="@drawable/baseline_save_alt_50"
             android:id="@+id/imgPrevSaveButton"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:background="@null"/>
 
-        <Button
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Share"
+            android:src="@drawable/baseline_ios_share_50"
             android:id="@+id/imgPrevShareButton"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:background="@null"
+            android:padding="5dp"/>
 
-        <Button
+        <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Trash"
+            android:src="@drawable/baseline_delete_50"
             android:id="@+id/imgPrevDeleteButton"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:background="@null"
+            android:padding="5dp"/>
     </LinearLayout>
 
 </LinearLayout>
