@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -45,15 +46,14 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private CameraProvider cameraProvider;
     private SensorManager sensorManager;
     private Sensor accelerometer;
-
-    // Thresholds for accelerometer values
     private static final float ACCELEROMETER_THRESHOLD = 9.0f;
+    private static final float ANGLE_THRESHOLD = 60.0f;
+    private int pictureCount = 0;
+    // Thresholds for accelerometer values
 
     private Button buttonCaptureSave, buttonCaptureShow;
     private ImageCapture imageCapture;
-    private static final int img_id = 1;
-    public static int buttonCaptureSaveInt;
-
+    private String [] file_paths;
     // new
     private Executor executor = Executors.newSingleThreadExecutor();
     private int REQUEST_CODE_PERMISSIONS = 1001;
@@ -81,7 +81,17 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         }
 
+        file_paths = new String[3];
 
+        pictureCount = 0;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        file_paths = new String[3];
+
+        pictureCount = 0;
     }
 
     private Executor getExecutor() {
@@ -115,9 +125,13 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         float acceleration = (float) Math.sqrt(x * x + y * y + z * z);
 
         if (acceleration > ACCELEROMETER_THRESHOLD && !isCapturing) {
-            // Trigger photo capture
-            capturePhoto();
-            isCapturing = true;
+            // Check if the device is tilted by at least 30 degrees horizontally
+            float angle = (float) Math.toDegrees(Math.atan2(y, x));
+            if (Math.abs(angle) >= ANGLE_THRESHOLD) {
+                // Trigger photo capture
+                capturePhoto();
+                isCapturing = true;
+            }
         } else if (acceleration <= ACCELEROMETER_THRESHOLD) {
             isCapturing = false;
         }
@@ -156,8 +170,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                 capturePhoto();
             }
     }
-
-
     private void capturePhoto() {
         long timeStamp = System.currentTimeMillis();
         String fileName = "worldstitcher_" + timeStamp + ".jpg";
@@ -170,61 +182,75 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         if (!direct.exists()) {
             direct.mkdirs();
         }
-
         File file = new File(direct, fileName);
+        file_paths[pictureCount] = file.getAbsolutePath();
+        if (pictureCount < 3) {
+            imageCapture.takePicture(
+                    new ImageCapture.OutputFileOptions.Builder(
+                            new File(file.getAbsolutePath())
+                    ).build(),
+                    executor,
+                    new ImageCapture.OnImageSavedCallback() {
+                        @Override
+                        public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                            pictureCount++;
+                            if (pictureCount == 3) {
+                                stitchAndPreview(file_paths);
 
-        // Capture the photo
-        imageCapture.takePicture(
-                new ImageCapture.OutputFileOptions.Builder(
-                        new File(file.getAbsolutePath())
-                ).build(),
-                getExecutor(),
-                new ImageCapture.OnImageSavedCallback() {
-                    @Override
-                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                        // Your existing code to handle the saved image
-
-                        // Example: Display the saved file path
-                        String savedImagePath = file.getAbsolutePath();
-                        Toast.makeText(CameraActivity.this, savedImagePath, Toast.LENGTH_SHORT).show();
-
-                        // Start ImagePreviewActivity and pass the image path
-                        Uri savedImageUri = Uri.fromFile(file);
-                        Intent previewIntent = new Intent(CameraActivity.this, ImagePreviewActivity.class);
-                        previewIntent.putExtra("imageUri", savedImageUri);
-                        previewIntent.putExtra("timestamp", timeStamp);
-                        startActivity(previewIntent);
-                    }
-
-                    @Override
-                    public void onError(@NonNull ImageCaptureException exception) {
-                        // Your existing code to handle the error
-                        Toast.makeText(CameraActivity.this, "Error: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-
-    private String getRealPathFromURI(Uri uri) {
-        String[] projection = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
-
-        if (cursor == null || cursor.getCount() == 0) {
-            // fallback to the original path if cursor is null or empty
-            if (cursor != null) {
-                cursor.close();
-            }
-            return uri.getPath();
-        } else {
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            String path = cursor.getString(columnIndex);
-            cursor.close();
-            return path;
+                                // Unregister the sensor listener when done capturing three images
+                                sensorManager.unregisterListener(CameraActivity.this);
+                            }
+                        }
+                        @Override
+                        public void onError(@NonNull ImageCaptureException exception) {
+                            Toast.makeText(CameraActivity.this, "Error: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
         }
     }
 
+    public Bitmap stitchImages(Bitmap[] images) {
+        int totalWidth = 0;
+        int maxHeight = 0;
 
+        // Calculate total width and maximum height
+        for (Bitmap image : images) {
+            totalWidth += image.getWidth();
+            maxHeight = Math.max(maxHeight, image.getHeight());
+        }
+
+        // Create a new bitmap with calculated dimensions
+        Bitmap stitchedBitmap = Bitmap.createBitmap(totalWidth, maxHeight, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(stitchedBitmap);
+
+        // Draw each image onto the new bitmap
+        int currentX = 0;
+        for (Bitmap image : images) {
+            canvas.drawBitmap(image, currentX, 0, null);
+            currentX += image.getWidth();
+        }
+
+        return stitchedBitmap;
+    }
+
+    private void stitchAndPreview(String [] paths) {
+        long timeStamp = System.currentTimeMillis();
+        Bitmap[] images = new Bitmap[3];
+
+        for (int i = 0; i < paths.length; i++) {
+            File imageFile = new File(paths[i]);
+            images[i] = BitmapUtils.decodeSampledBitmapFromFile(imageFile, 500, 500); // Adjust the sample size as needed
+        }
+
+        Bitmap stitchedBitmap = stitchImages(images);
+        String image_name = "stitched_image_" + timeStamp +".jpg";
+
+        Uri stitchedImageUri = BitmapUtils.saveBitmapAndGetUri(this, stitchedBitmap, image_name);
+        Intent previewIntent = new Intent(CameraActivity.this, ImagePreviewActivity.class);
+        previewIntent.putExtra("imageUri", stitchedImageUri);
+        previewIntent.putExtra("timestamp", timeStamp);
+        startActivity(previewIntent);
+    }
     private boolean allPermissionsGranted() {
 
         for (String permission : REQUIRED_PERMISSIONS) {

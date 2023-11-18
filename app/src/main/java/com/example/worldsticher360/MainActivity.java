@@ -1,10 +1,12 @@
 package com.example.worldsticher360;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,10 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-    private ImageView click_image_id;
-    private String currentPhotoPath;
-    private ActivityResultLauncher<Intent> takePictureLauncher;
-    private static final int pic_id = 123;
     // SharedPreferences file name
     private static final String SHARED_PREFS_NAME = "MyPrefs";
     private RecyclerView recyclerView;
@@ -71,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
         displayPreferences();
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-
         MyDatabase myDatabase = new MyDatabase(this);
         Cursor cursor = myDatabase.getPhotoData();
 
@@ -79,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         // Set up the adapter
         adapter = new ImageGridAdapter(this, cursor);
         recyclerView.setAdapter(adapter);
+
     }
 
     // Display saved preferences
