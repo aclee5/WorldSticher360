@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -59,6 +60,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private int REQUEST_CODE_PERMISSIONS = 1001;
     private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA"};
 
+    private Sensor orientationSensor;
+
     private boolean isCapturing = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +84,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         }
 
-        file_paths = new String[3];
+        orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
+        file_paths = new String[3];
         pictureCount = 0;
     }
 
@@ -90,7 +94,6 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     protected void onResume() {
         super.onResume();
         file_paths = new String[3];
-
         pictureCount = 0;
     }
 
@@ -182,8 +185,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         if (!direct.exists()) {
             direct.mkdirs();
         }
+
         File file = new File(direct, fileName);
-        file_paths[pictureCount] = file.getAbsolutePath();
+
         if (pictureCount < 3) {
             imageCapture.takePicture(
                     new ImageCapture.OutputFileOptions.Builder(
@@ -193,10 +197,11 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                     new ImageCapture.OnImageSavedCallback() {
                         @Override
                         public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                            Log.d("Camera", "picture count: " + pictureCount);
+                            file_paths[pictureCount] = file.getAbsolutePath();
                             pictureCount++;
                             if (pictureCount == 3) {
                                 stitchAndPreview(file_paths);
-
                                 // Unregister the sensor listener when done capturing three images
                                 sensorManager.unregisterListener(CameraActivity.this);
                             }
@@ -249,6 +254,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         Intent previewIntent = new Intent(CameraActivity.this, ImagePreviewActivity.class);
         previewIntent.putExtra("imageUri", stitchedImageUri);
         previewIntent.putExtra("timestamp", timeStamp);
+        file_paths = new String[3];
+        pictureCount = 0;
         startActivity(previewIntent);
     }
     private boolean allPermissionsGranted() {

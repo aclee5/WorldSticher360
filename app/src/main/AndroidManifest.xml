@@ -11,6 +11,11 @@
     <uses-feature
         android:name="android.hardware.sensor.accelerometer"
         android:required="true"/>
+    <uses-feature
+        android:name="android.hardware.sensor.gyroscope"
+        android:required="true"/>
+    <uses-feature android:name="android.hardware.sensor.compass" />
+
     <queries>
         <intent>
             <action android:name="android.intent.action.VIEW" />
