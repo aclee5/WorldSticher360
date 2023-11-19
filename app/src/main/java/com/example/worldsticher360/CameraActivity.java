@@ -14,6 +14,8 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -41,31 +43,30 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class CameraActivity extends AppCompatActivity implements View.OnClickListener, SensorEventListener {
-
-    private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     PreviewView previewView;
-    private CameraProvider cameraProvider;
     private SensorManager sensorManager;
     private Sensor accelerometer;
-    private static final float ACCELEROMETER_THRESHOLD = 9.0f;
-    private static final float ANGLE_THRESHOLD = 60.0f;
+    private static final float ANGLE_THRESHOLD = 30.0f;
     private int pictureCount = 0;
     // Thresholds for accelerometer values
     private float azimut;
+    private double previous_angle=60;
     private float[] mGravity;
     private float[] mGeomagnetic;
-    float previousOrientation = ANGLE_THRESHOLD;
-    private Button buttonCaptureSave, buttonCaptureShow;
+    private Button buttonCaptureSave;
     private ImageCapture imageCapture;
     private String [] file_paths;
     private Executor executor = Executors.newSingleThreadExecutor();
     private int REQUEST_CODE_PERMISSIONS = 1001;
     private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA"};
-
     private Sensor orientationSensor;
     private Sensor magnetometer;
     private boolean isCapturing = false;
     private boolean canCapture = false;
+
+    private boolean holding = false;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,7 +93,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
         file_paths = new String[3];
         pictureCount = 0;
-        previousOrientation = ANGLE_THRESHOLD;
+        previous_angle = ANGLE_THRESHOLD;
         canCapture = false;
     }
 
@@ -101,7 +102,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         super.onResume();
         file_paths = new String[3];
         pictureCount = 0;
-        previousOrientation = ANGLE_THRESHOLD;
+        previous_angle = ANGLE_THRESHOLD;
         canCapture = false;
     }
 
@@ -111,8 +112,14 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         super.onResume();
         file_paths = new String[3];
         pictureCount = 0;
-        previousOrientation = ANGLE_THRESHOLD;
+        previous_angle = ANGLE_THRESHOLD;
         canCapture = false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        previous_angle = ANGLE_THRESHOLD;
     }
 
     private Executor getExecutor() {
@@ -139,6 +146,8 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        //absolute value
+        double ab_diff;
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
             mGravity = event.values;
         if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
@@ -150,18 +159,14 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             if (success) {
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(R, orientation);
-                azimut = orientation[0]; // orientation contains: azimut, pitch and roll
-                if(Math.abs(Math.toDegrees(orientation[0])) < 30 && Math.abs(Math.toDegrees(orientation[0])) > 0)
-                {
-                    canCapture = true;
-
-                    Toast.makeText(this, "Can Start", Toast.LENGTH_SHORT).show();
-                }
-                if(canCapture && !isCapturing && Math.abs(Math.toDegrees(orientation[0])) >= previousOrientation)
-                {
-                    capturePhoto();
-                    isCapturing = true;
-                    previousOrientation = (float) (Math.abs(Math.toDegrees(orientation[0])) + 30.0);
+                azimut = orientation[0]; // orientation contains: azimut, pitch, and roll
+                ab_diff = Math.abs(previous_angle - ANGLE_THRESHOLD);
+                if (Math.abs(Math.toDegrees(orientation[0])) >= ab_diff) {
+                    if (!isCapturing) {
+                        previous_angle = Math.abs(Math.toDegrees(orientation[0]));
+                        capturePhoto();
+                        isCapturing = true;
+                    }
                 } else {
                     isCapturing = false;
                 }
@@ -169,9 +174,17 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+
+    private void showHoldMessage()
+    {
+        if (holding) {
+            Toast.makeText(this, "Hold", Toast.LENGTH_SHORT).show();
+        }
     }
 
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
@@ -288,6 +301,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         previewIntent.putExtra("timestamp", timeStamp);
         file_paths = new String[3];
         pictureCount = 0;
+        previous_angle = 30;
         startActivity(previewIntent);
     }
     private boolean allPermissionsGranted() {
