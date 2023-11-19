@@ -38,6 +38,7 @@ import androidx.core.content.ContextCompat;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -54,8 +55,9 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private float[] mGravity;
     private float[] mGeomagnetic;
     private Button buttonCaptureSave;
+    private Button buttonStitch;
     private ImageCapture imageCapture;
-    private String [] file_paths;
+    private ArrayList<String> file_paths;
     private Executor executor = Executors.newSingleThreadExecutor();
     private int REQUEST_CODE_PERMISSIONS = 1001;
     private final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA"};
@@ -73,8 +75,10 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_camera);
 
         buttonCaptureSave = findViewById(R.id.buttonCaptureSave);
+        buttonStitch = findViewById(R.id.imageStitchButton);
         previewView = findViewById(R.id.previewView);
 
+        buttonStitch.setOnClickListener(this);
         buttonCaptureSave.setOnClickListener(this);
 
         if (allPermissionsGranted()) {
@@ -91,7 +95,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
-        file_paths = new String[3];
+        file_paths = new ArrayList<>();
         pictureCount = 0;
         previous_angle = ANGLE_THRESHOLD;
         canCapture = false;
@@ -100,7 +104,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onResume() {
         super.onResume();
-        file_paths = new String[3];
+        file_paths = new ArrayList<>();
         pictureCount = 0;
         previous_angle = ANGLE_THRESHOLD;
         canCapture = false;
@@ -110,7 +114,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     protected void onRestart() {
         super.onRestart();
         super.onResume();
-        file_paths = new String[3];
+        file_paths = new ArrayList<>();
         pictureCount = 0;
         previous_angle = ANGLE_THRESHOLD;
         canCapture = false;
@@ -217,6 +221,12 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             if(view.getId() == buttonCaptureSave.getId()) {
                 capturePhoto();
             }
+            if(view.getId() == buttonStitch.getId()){
+                sensorManager.unregisterListener(CameraActivity.this);
+                canCapture = false;
+                stitchAndPreview(file_paths);
+
+            }
     }
     private void capturePhoto() {
         long timeStamp = System.currentTimeMillis();
@@ -233,33 +243,26 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
         File file = new File(direct, fileName);
 
-        if (pictureCount <= 3) {
-            Toast.makeText(this, "Taken Photo " + pictureCount, Toast.LENGTH_SHORT).show();
-            imageCapture.takePicture(
-                    new ImageCapture.OutputFileOptions.Builder(
-                            new File(file.getAbsolutePath())
-                    ).build(),
-                    executor,
-                    new ImageCapture.OnImageSavedCallback() {
-                        @Override
-                        public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
-                            Log.d("Camera", "picture count: " + pictureCount);
-                            file_paths[pictureCount] = file.getAbsolutePath();
-                            pictureCount++;
-                            if (pictureCount == 3) {
-                                stitchAndPreview(file_paths);
-                                // Unregister the sensor listener when done capturing three images
-                                sensorManager.unregisterListener(CameraActivity.this);
-                                canCapture = false;
-                                Log.d("camera", "finished");
-                            }
-                        }
-                        @Override
-                        public void onError(@NonNull ImageCaptureException exception) {
-//                            Toast.makeText(CameraActivity.this, "Error: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }
+        Toast.makeText(this, "Taken Photo " + pictureCount, Toast.LENGTH_SHORT).show();
+        imageCapture.takePicture(
+                new ImageCapture.OutputFileOptions.Builder(
+                        new File(file.getAbsolutePath())
+                ).build(),
+                executor,
+                new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        Log.d("Camera", "picture count: " + pictureCount);
+                        file_paths.add(file.getAbsolutePath());
+                        pictureCount++;
+                    }
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                    }
+                });
+
+
+
     }
 
     public Bitmap stitchImages(Bitmap[] images) {
@@ -282,16 +285,14 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             canvas.drawBitmap(image, currentX, 0, null);
             currentX += image.getWidth();
         }
-
         return stitchedBitmap;
     }
-
-    private void stitchAndPreview(String [] paths) {
+    private void stitchAndPreview(ArrayList<String> paths) {
         long timeStamp = System.currentTimeMillis();
-        Bitmap[] images = new Bitmap[3];
+        Bitmap[] images = new Bitmap[paths.size()];
 
-        for (int i = 0; i < paths.length; i++) {
-            File imageFile = new File(paths[i]);
+        for (int i = 0; i < paths.size(); i++) {
+            File imageFile = new File(paths.get(i));
             images[i] = BitmapUtils.decodeSampledBitmapFromFile(imageFile, 500, 500); // Adjust the sample size as needed
         }
 
@@ -302,11 +303,12 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         Intent previewIntent = new Intent(CameraActivity.this, ImagePreviewActivity.class);
         previewIntent.putExtra("imageUri", stitchedImageUri);
         previewIntent.putExtra("timestamp", timeStamp);
-        file_paths = new String[3];
+        file_paths = new ArrayList<>();
         pictureCount = 0;
         previous_angle = 30;
         startActivity(previewIntent);
     }
+
     private boolean allPermissionsGranted() {
 
         for (String permission : REQUIRED_PERMISSIONS) {
