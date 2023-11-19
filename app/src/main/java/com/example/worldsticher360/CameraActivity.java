@@ -223,13 +223,14 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
         String fileName = "worldstitcher_" + timeStamp + ".jpg";
 
         // Specify the folder path where you want to save the photo
-        String folderPath = Environment.getExternalStorageDirectory() + "/worldstitcher/photos";
+        String folderPath = this.getFilesDir() + "/worldstitcher/photos";
 
         File direct = new File(folderPath);
 
         if (!direct.exists()) {
             direct.mkdirs();
         }
+
 
         File file = new File(direct, fileName);
 
@@ -249,11 +250,12 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 stitchAndPreview(file_paths);
                                 // Unregister the sensor listener when done capturing three images
                                 sensorManager.unregisterListener(CameraActivity.this);
+                                Log.d("camera", "finished");
                             }
                         }
                         @Override
                         public void onError(@NonNull ImageCaptureException exception) {
-                            Toast.makeText(CameraActivity.this, "Error: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(CameraActivity.this, "Error: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
         }
