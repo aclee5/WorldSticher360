@@ -231,10 +231,10 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
             direct.mkdirs();
         }
 
-
         File file = new File(direct, fileName);
 
-        if (pictureCount < 3) {
+        if (pictureCount <= 3) {
+            Toast.makeText(this, "Taken Photo " + pictureCount, Toast.LENGTH_SHORT).show();
             imageCapture.takePicture(
                     new ImageCapture.OutputFileOptions.Builder(
                             new File(file.getAbsolutePath())
@@ -250,6 +250,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
                                 stitchAndPreview(file_paths);
                                 // Unregister the sensor listener when done capturing three images
                                 sensorManager.unregisterListener(CameraActivity.this);
+                                canCapture = false;
                                 Log.d("camera", "finished");
                             }
                         }
