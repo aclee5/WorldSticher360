@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ImageViewActivity">
+    tools:context=".ImageViewActivity"
+    android:padding="25dp">
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -20,9 +21,14 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textSize="25sp"
+        android:text="Untitled Image"
+        android:id="@+id/imageViewImageNameTextView"
+        android:gravity="end" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="Date Taken: MM-DD-YYYY at HR-MIN"
-        android:textStyle="bold"
-        android:padding="10dp"
         android:gravity="end"
         android:id="@+id/imageViewInfoTextView"/>
 

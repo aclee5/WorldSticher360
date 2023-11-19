@@ -2,4 +2,5 @@
     <string name="app_name">WorldSticher360</string>
     <string name="photo_gallery_name">Photo Gallery</string>
     <string name="home_button">Home</string>
+    <stirng name="opening message">Welcome</stirng>
 </resources>

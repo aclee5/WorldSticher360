@@ -8,23 +8,27 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <ImageButton
+        android:orientation="horizontal"
+        android:paddingEnd="20dp">
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/baseline_home_24"
+            android:drawableLeft="@drawable/baseline_home_24"
             android:id="@+id/imgPrevHomeButton"
-            android:layout_weight="0.5"
+            android:background="null"
+            android:textColor="@color/black"
+            android:text="@string/home_button"
             />
         <EditText
-            android:padding="20dp"
-            android:layout_width="0dp"
+            android:padding="15dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:ems="10"
             android:hint="Untitled"
             android:id="@+id/imagePrevNameEditText"
-            />
+            tools:ignore="VisualLintTextFieldSize" />
+
     </LinearLayout>
     <!-- add ImageView to display the captured image -->
     <ImageView
@@ -38,33 +42,43 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="5dp">
-        <ImageButton
+        android:gravity="center"
+        android:padding="10dp">
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/baseline_save_alt_50"
+            android:drawableTop="@drawable/baseline_save_alt_50"
             android:id="@+id/imgPrevSaveButton"
+            android:text="Save"
+            android:textSize="20dp"
+            android:textColor="@color/black"
             android:layout_weight="1"
-            android:padding="5dp"
-            android:background="@null"/>
+            android:background="null"/>
 
-        <ImageButton
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/baseline_ios_share_50"
+            android:drawableTop="@drawable/baseline_ios_share_50"
             android:id="@+id/imgPrevShareButton"
             android:layout_weight="1"
-            android:background="@null"
+            android:background="null"
+            android:text="Share"
+            android:textSize="20sp"
+            android:textColor="@color/black"
             android:padding="5dp"/>
 
-        <ImageButton
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/baseline_delete_50"
+            android:drawableTop="@drawable/baseline_delete_50"
             android:id="@+id/imgPrevDeleteButton"
             android:layout_weight="1"
-            android:background="@null"
-            android:padding="5dp"/>
+            android:background="null"
+            android:text="Delete"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:padding="5dp"
+            />
     </LinearLayout>
 
 </LinearLayout>

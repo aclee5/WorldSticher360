@@ -6,12 +6,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".SettingsActivity"
-    android:padding="20dp">
+    >
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Back"
-        android:id="@+id/settingsBackButton"/>
+        android:drawableLeft="@drawable/baseline_home_24"
+        android:id="@+id/settingsBackButton"
+        android:text="@string/home_button"
+        android:textColor="@color/black"
+        android:background="null"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -24,7 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="10dp">
+        android:padding="25dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -40,7 +43,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="10dp">
+        android:padding="25dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

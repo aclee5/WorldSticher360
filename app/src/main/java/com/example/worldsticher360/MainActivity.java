@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,13 +46,13 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_NAME = "name";
     private static final String KEY_THEME = "theme";
     private TextView welcomeTextView;
-    private Button settingsBtn;
+    private ImageButton settingsBtn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //welcomeMessageTextView
-        Button btnOpenCamera = findViewById(R.id.btnOpenCamera);
+        ImageButton btnOpenCamera = findViewById(R.id.btnOpenCamera);
         settingsBtn = findViewById(R.id.settingsBtn);
         welcomeTextView = findViewById(R.id.welcomeMessageTextView);
         deleteDbBtn = findViewById(R.id.btnDeleteDb);

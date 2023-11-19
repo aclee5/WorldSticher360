@@ -25,9 +25,9 @@ public class ImagePreviewActivity extends AppCompatActivity {
 
     private ImageView imageViewPreview;
     private EditText nameEditText;
-    private ImageButton saveBtn;
-    private ImageButton deleteBtn;
-    private ImageButton shareBtn;
+    private Button saveBtn;
+    private Button deleteBtn;
+    private Button shareBtn;
 
     private Button homeBtn;
     private Uri imageUri;
